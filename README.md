@@ -35,7 +35,7 @@ with the Grove LCD 16x2 board mentioned above.
 
 ### See also
 
-There is an example in Rasperry Pi [pico-examples](pico-examples) for
+There is an example in Raspberry Pi [pico-examples](pico-examples) for
 using similar 16x2 LCD modules; see `i2c/lcd_1602_i2c`. I have not been
 able to use that example with this LCD board though.
 

@@ -107,8 +107,8 @@ void lcd_return_home(lcd16x2_t *lcd);
  * of these values are greater than the number of characters in the LCD
  * then they are set to 0.
  * 
- * \param row Row to move the cursor to
- * \param col Column to move the cursor to
+ * \param row Row to move the cursor to (top row is 0)
+ * \param col Column to move the cursor to (leftmost column is 0)
  * \param lcd Pointer to the lcd16x2 structure
 */
 void lcd_move_cursor(uint8_t row, uint8_t col, lcd16x2_t *lcd);

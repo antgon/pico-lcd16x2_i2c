@@ -29,7 +29,7 @@ void lcd_init(i2c_inst_t *i2c_port, uint8_t i2c_addr,
     // functions, etc, so that he user is able to choose from the
     // various configuration options. At this point, however, I am only
     // interested in using the 16x2 display in the same way (e.g.
-    // left-to-right, blinking, etc) so I am for now hardcoding these
+    // left-to-right, no blinking, etc) so I am for now hardcoding these
     // options here.
     uint8_t lcd_function = (LCD_FUNCTION_SET | LCD_DATA_LEN_8_BITS |
         LCD_2_LINES | LCD_CHARACTER_5x8_DOTS);
@@ -39,7 +39,7 @@ void lcd_init(i2c_inst_t *i2c_port, uint8_t i2c_addr,
     uint8_t lcd_display_ctrl = (LCD_DISPLAY_CONTROL | LCD_DISPLAY_ON |
         LCD_CURSOR_OFF | LCD_BLINK_OFF);
    
-    // initialisation sequence as per the Hitachi manual (Table 13,
+    // Initialisation sequence as per the Hitachi manual (Table 13,
     // p.43) is function set -> display control -> entry mode. The time
     // intervals between steps are as in p.13 of the JHD data sheet.
     sleep_ms(15);
@@ -58,30 +58,29 @@ void lcd_init(i2c_inst_t *i2c_port, uint8_t i2c_addr,
 
 void lcd_move_cursor(uint8_t row, uint8_t col, lcd16x2_t *lcd) {
     // To move the cursor to a specific postion the action is "set the
-    // DDRAM address", and involves (1) selecting the instruction
-    // register (RS = 1), (2) setting clearing the red bit (R/~W = 0),
-    // and (3) writing the instruction byte.
+    // DDRAM address", and involves (i) selecting the instruction
+    // register (RS = 1), (ii) clearing the read bit (R/~W = 0), and
+    // (iii) writing the instruction byte.
     //
-    // Within the instruction byte, bit 7 must be set to 1 (i.e. 0x80)
-    // and the remaining 7 bits set the address counter, referred in the
-    // data sheet as A'AAA'AAA.
+    // Within the instruction byte, bit 7 must be set to 1 (i.e. 0x80).
+    // The remaining 7 bits (6-0) set the address counter (i.e. the
+    // position of the cursor), and are referred to in the data sheet as
+    // AAAAAAA.
     //
-    // The leftmost bit (bit 6) sets the row: 0 or 1 for top or bottom
-    // row. The remaining 6 bits (5 to 0) define the column position and
-    // are 0b000000 to 0b100111, which is the range 0 to 39. This coding
-    // thus allows to define column in displays that are up to 40
-    // characters wide.
+    // Within AAAAAAA, the leftmost bit (bit 6) sets the row: 0 or 1 for
+    // top or bottom row. The remaining 6 bits (5 to 0) define the
+    // column and are 0b000'000 to 0b100'111, which is the range 0 to
+    // 39. This coding thus allows to define column position in displays
+    // that are up to 40 characters wide.
     //
     // From the above it follows that the row (line) can be selected by
     // setting bit 6 to 0 or 1:
-    //   row 0 = 0x00
-    //   row 1 = 0x40
+    //   select row 0 = 0x00
+    //   select row 1 = 0x40
     // and selecting the column simply involves setting bits 5-0 with
     // the required value (0~39).
     //
-    // (Hitachi data sheet p.29)
-
-    // The instruction byte for setting the position of the cursor is
+    // (Source: Hitachi data sheet p.29)
 
     // Bit 6 selects the row: 0 or 1. Thus, shifting the value by these
     // many places should do the trick. Before that, we check that row
@@ -90,20 +89,22 @@ void lcd_move_cursor(uint8_t row, uint8_t col, lcd16x2_t *lcd) {
     row = row << 6;
 
     // Column position is determined by bits 5-0 in the instruction
-    // byte, and the valid range is between 0 and 39.
+    // byte, and the valid range is between 0 and 39. If the column
+    // number is greater than the available columns in the LCD, the
+    // value is set to 0.
     if (col >= LCD_NUMBER_OF_COLS) col = 0;
 
-    // Position can now be set the combination of row and column
-    // information, This also has to be combined with bit 7 which must
-    // be 1
+    // The cursor position can now be set by combining row and column
+    // values, and bit 7 which must be set to 1 (i.e. 0x80).
     uint8_t command = (0x80 | row | col);
     lcd_write(LCD_INSTRUCTION_REG, command, lcd);
 }
 
 void lcd_put_char(uint8_t c, lcd16x2_t *lcd) {
     // To display characters, the action is "write data to DDRAM". For
-    // that, set RS to 1 (i.e. select Data Register), set R/~W to 0
-    // (write), then write the 8 bits that code the (ascii) character.
+    // that, (i) set RS to 1 (i.e. select Data Register), (ii) set R/~W
+    // to 0 (write), then (iii) write the 8 bits that code the (ascii)
+    // character.
     lcd_write(LCD_DATA_REG, c, lcd);
 }
 
