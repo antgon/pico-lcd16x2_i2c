@@ -86,6 +86,8 @@ void lcd_write(enum lcd16x2_register reg, uint8_t val, lcd16x2_t *lcd);
 
 
 /*! \brief Clears the display
+ * 
+ * Clears the display and resets the DDRAM address.
  *
  * \param lcd Pointer to the lcd16x2 structure
  */

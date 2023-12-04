@@ -26,7 +26,7 @@ void lcd_init(i2c_inst_t *i2c_port, uint8_t i2c_addr,
     lcd->i2c_addr = i2c_addr;
 
     // These parameters could potentially be modified by means of some
-    // functions, etc, so that he user is able to choose from the
+    // functions, etc, so that the user is able to choose from the
     // various configuration options. At this point, however, I am only
     // interested in using the 16x2 display in the same way (e.g.
     // left-to-right, no blinking, etc) so I am for now hardcoding these
