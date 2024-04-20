@@ -14,6 +14,9 @@ SCL | SCL (e.g. pin 9)
 VDD | 3V3(OUT)
 GND | GND
 
+No additional I2C pull-up resistors are required; the "newer" version of this
+display includes these already; see
+[Grove 16x2 liquid crystal display (LCD)][grove].
 
 ## Notes
 
